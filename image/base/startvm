@@ -271,6 +271,11 @@ EOF
         exit 4
     fi
 
+		let new_octet=$(echo $IP | cut -d. -f3)-1 # TODO: Can break
+		FIX_IP=$(echo $IP | cut -d. -f -3).$new_octet
+
+		ip addr add $FIX_IP/$CIDR dev $BRIDGE_IFACE
+
     # Exec kvm as PID 1
 
     echo allow $BRIDGE_IFACE >  /etc/qemu/bridge.conf
