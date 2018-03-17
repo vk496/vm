@@ -277,7 +277,7 @@ EOF
 }
 
 # need to wait until network is ready
-ISO=`generate_cloud_drive`
+#ISO=`generate_cloud_drive`
 if [[ $ISO ]]
 then
 	KVM_BLK_OPTS=$KVM_BLK_OPTS" -cdrom $ISO"
@@ -297,6 +297,12 @@ if [ -d /vm ]; then
     mkdir -p /vm/$DOCKERID
     VNC="-vnc unix:/vm/$DOCKERID/vnc"
     echo VNC server will listen on Unix socket /vm/$DOCKERID/vnc
+
+elif [[ $VNC == "true" ]]; then
+	export QT_X11_NO_MITSHM=1 #https://github.com/osrf/docker_images/issues/21
+	VNC="-vnc :5"
+	export DISPLAY=${DISPLAY-":0.0"}
+	( while true; do gvncviewer 127.0.0.1:5; sleep 1; done ) &
 fi
 
 exec $LAUNCHER qemu-system-x86_64 -enable-kvm  $VNC `eval echo $KVM_BLK_OPTS` `eval echo $KVM_NET_OPTS` -usbdevice tablet $KVM_ARGS
